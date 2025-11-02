@@ -7,14 +7,26 @@ public class HomeSolution implements IHomeSolution {
 	HashMap<Integer,Empleado> empleados;
 	HashMap<Integer,Proyecto> proyectos;
 
+	
+	public Proyecto getProyecto(int numero) {
+		return proyectos.get(numero);
+	}
+	public Tarea getTarea(int numero, String titulo) {
+		return getProyecto(numero).getTarea(titulo);
+	}
+	public Empleado getEmpleado(int numero) {
+		return empleados.get(numero);
+	}
+	
+	
+	
 	@Override
     public void registrarEmpleado(String nombre, double valor) {
     	if(nombre == null || valor <= 0) {
     		throw new IllegalArgumentException("Ingrese un nombre valido y valor mayor a 0");
     	}
-    	
     	Empleado empleado = new Empleado(nombre, valor);
-    	empleados.put(empleado.legajo, empleado);
+    	empleados.put(empleado.getLegajo(), empleado);
     }
 	
 	@Override
@@ -24,7 +36,7 @@ public class HomeSolution implements IHomeSolution {
     	}
     	
     	EmpleadoDePlanta empleado = new EmpleadoDePlanta(nombre, valor, categoria);
-    	empleados.put(empleado.legajo, empleado);
+    	empleados.put(empleado.getLegajo(), empleado);
     }
 	
 	@Override
@@ -47,21 +59,21 @@ public class HomeSolution implements IHomeSolution {
     		throw new IllegalArgumentException("Ingrese valores validos");
     	}
     	
-    	if(proyectos.get(numero).tareas.get(titulo).empleadoAsignado != 0) {
+    	if(getTarea(numero, titulo).getEmpleadoAsignado() != 0) {
     		throw new IllegalArgumentException("Ya hay un empleado asignado");
     	}
     	
-    	if(proyectos.get(numero).estado == "Finalizado") {
+    	if(getProyecto(numero).estaFinalizado()) {
     		throw new IllegalArgumentException("El proyecto ya esta finalizado");
     	}
     	
     	int empleadoDisponible = 0;
     	
     	for (Empleado empleado : empleados.values()) {
-			if(empleado.estado == false) {
-				empleadoDisponible = empleado.legajo;
-				proyectos.get(numero).tareas.get(titulo).empleadoAsignado = empleadoDisponible;
-		    	empleados.get(empleadoDisponible).tituloTarea = titulo;
+			if(empleado.getEstado() == false) {
+				empleadoDisponible = empleado.getLegajo();
+				getTarea(numero, titulo).reasignarEmpleado(empleadoDisponible);
+		    	getEmpleado(empleadoDisponible).reasignarTarea(titulo);
 				break;
 			}
 		}
@@ -77,11 +89,11 @@ public class HomeSolution implements IHomeSolution {
     		throw new IllegalArgumentException("Ingrese valores validos");
     	}
     	
-    	if(proyectos.get(numero).tareas.get(titulo).empleadoAsignado != 0) {
+    	if(getTarea(numero, titulo).getEmpleadoAsignado() != 0) {
     		throw new IllegalArgumentException("Ya hay un empleado asignado");
     	}
     	
-    	if(proyectos.get(numero).estado == "Finalizado") {
+    	if(getProyecto(numero).estaFinalizado()) {
     		throw new IllegalArgumentException("El proyecto ya esta finalizado");
     	}
     	
@@ -89,9 +101,9 @@ public class HomeSolution implements IHomeSolution {
     	int menosRetraso = 99;
     	
     	for (Empleado empleado : empleados.values()) {
-			if(empleado.estado == false && menosRetraso < empleado.retrasos) {
-				menosRetraso = empleado.retrasos;
-				empleadoDisponible = empleado.legajo;
+			if(empleado.getEstado() == false && menosRetraso < empleado.getRetraso()) {
+				menosRetraso = empleado.getRetraso();
+				empleadoDisponible = empleado.getLegajo();
 			}
 		}
     	
@@ -99,8 +111,8 @@ public class HomeSolution implements IHomeSolution {
     		throw new IllegalArgumentException("No hay empleados disponibles");
     	}
     	
-    	proyectos.get(numero).tareas.get(titulo).empleadoAsignado = empleadoDisponible;
-    	empleados.get(empleadoDisponible).tituloTarea = titulo;
+    	getTarea(numero, titulo).reasignarEmpleado(empleadoDisponible);
+    	getEmpleado(empleadoDisponible).reasignarTarea(titulo);
     }
 	
 	@Override		 
@@ -109,9 +121,9 @@ public class HomeSolution implements IHomeSolution {
     		throw new IllegalArgumentException("Ingrese valores validos");
     	}
 		
-		proyectos.get(numero).tareas.get(titulo).dias += cantidadDias;
-		int empleadoRetrasado = proyectos.get(numero).tareas.get(titulo).empleadoAsignado;
-		empleados.get(empleadoRetrasado).retrasos += 1;
+		getTarea(numero, titulo).agregarRetraso(cantidadDias);
+		int empleadoRetrasado = getTarea(numero, titulo).getEmpleadoAsignado();
+		getEmpleado(empleadoRetrasado).sumarRetraso();
     }
 	
 	@Override
@@ -126,12 +138,24 @@ public class HomeSolution implements IHomeSolution {
 	
 	@Override
     public void finalizarTarea(Integer numero, String titulo){
-		
+		if(numero <= 0 || titulo == null) {
+			throw new IllegalArgumentException("Ingrese valores validos");
+		}
+		if(proyectos.get(numero).tareas.get(titulo).getEstado() == true) {
+			throw new IllegalArgumentException("La tarea ya fue finalizada");
+		}
+		proyectos.get(numero).tareas.get(titulo).cambiarEstado();
     }
 
 	@Override
     public void finalizarProyecto(Integer numero, String fin){
-
+		if(numero <= 0 || fin == null) {
+			throw new IllegalArgumentException("Ingrese valores validos");
+		}
+		if(Integer.parseInt(fin)< Integer.parseInt(getProyecto(numero).getFechaInicio())) {
+			throw new IllegalArgumentException("La fecha ingresada no puede ser anterior a la fecha de inicio");
+		}
+		getProyecto(numero).finalizarProyecto(fin);
     }
 	
 	@Override

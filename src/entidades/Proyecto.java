@@ -10,7 +10,7 @@ public class Proyecto {
 	private String inicio;
 	private String finEstimado;
 	private String finReal;
-	public String estado;
+	private String estado;
 	private double costo;
 	HashMap<String,Tarea> tareas;
 	
@@ -22,7 +22,7 @@ public class Proyecto {
 		this.domicilio = domicilio;
 		this.inicio = inicio;
 		this.finEstimado = finEstimado;
-		this.estado = "Pendiente";
+		this.estado = "PENDIENTE";
 		this.costo = 0;
 	}
 
@@ -32,4 +32,24 @@ public class Proyecto {
 				+ domicilio + ", inicio=" + inicio + ", finEstimado=" + finEstimado + ", finReal=" + finReal
 				+ ", estado=" + estado + ", costo=" + costo + ", tareas=" + tareas + "]";
 	}	
+	
+	public boolean estaFinalizado() {
+		if (estado == "FINALIZADO") {
+			return true;
+		}
+		return false;
+	}
+	
+	public void finalizarProyecto(String fechaFin) {
+		estado = "FINALIZADO";
+		finReal = fechaFin;
+	}
+	
+	public String getFechaInicio() {
+		return inicio;
+	}
+	public Tarea getTarea(String titulo){
+		return tareas.get(titulo);
+	}
+	
 }

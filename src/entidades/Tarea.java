@@ -5,8 +5,8 @@ public class Tarea {
 	private String titulo;
 	private String descripcion;
 	private boolean estado;
-	public double dias;
-	public int empleadoAsignado;
+	private double dias;
+	private int empleadoAsignado;
 	
 	public Tarea(int codigoProyecto, String titulo, String descripcion, double dias) {
 		this.codigoProyecto = codigoProyecto;
@@ -22,4 +22,25 @@ public class Tarea {
 		return "Tarea [codigoProyecto=" + codigoProyecto + ", titulo=" + titulo + ", descripcion=" + descripcion
 				+ ", estado=" + estado + ", horas=" + dias + ", empleadoAsignado=" + empleadoAsignado + "]";
 	}
+	
+	public void cambiarEstado() {
+		estado = !estado;
+	}
+	public void reasignarEmpleado(int empleado) {
+		empleadoAsignado = empleado;
+	}
+	public void agregarRetraso(double retraso) {
+		dias += retraso;
+	}
+	
+	public boolean getEstado() {
+		return estado;
+	}
+	public int getEmpleadoAsignado() {
+		return empleadoAsignado;
+	}
+	public double getDias() {
+		return dias;
+	}
+	
 }
