@@ -5,7 +5,7 @@ public class Empleado {
 	private int legajo;
 	private static int cont = 0;
 	private boolean estado;
-	private double valor;
+	public double valor;
 	private int retrasos;
 	private String tituloTarea;
 	

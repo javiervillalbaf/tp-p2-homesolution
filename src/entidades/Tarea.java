@@ -19,7 +19,7 @@ public class Tarea {
 
 	@Override
 	public String toString() {
-		return "titulo=" + titulo;
+		return titulo;
 	}
 	
 	public void cambiarEstado() {

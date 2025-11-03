@@ -5,7 +5,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 
 public class Proyecto {
-	public int codigoProyecto = 1;
+	public int codigoProyecto = 0;
+	private static int cont = 0;
 	private String[] cliente;
 	public String domicilio;
 	private String inicio;
@@ -15,10 +16,9 @@ public class Proyecto {
 	private double costo;
 	HashMap<String,Tarea> tareas;
 	
-	
 	public Proyecto(String[] cliente, String domicilio, String inicio, String finEstimado) {
-		codigoProyecto++;
-		this.codigoProyecto = codigoProyecto;
+		cont++;
+		this.codigoProyecto = cont;
 		this.cliente = cliente;
 		this.domicilio = domicilio;
 		this.inicio = inicio;
@@ -61,6 +61,14 @@ public class Proyecto {
 	}
 	
 	public String getFechaInicio() {
+		return inicio;
+	}
+	
+	public String getFechaFinEstimado() {
+		return inicio;
+	}
+	
+	public String getFechaFinReal() {
 		return inicio;
 	}
 	

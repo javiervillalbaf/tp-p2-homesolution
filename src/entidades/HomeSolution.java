@@ -1,5 +1,6 @@
 package entidades;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -59,10 +60,10 @@ public class HomeSolution implements IHomeSolution {
     	 	
     	Proyecto proyecto = new Proyecto(cliente, domicilio, inicio, finEstimado);
     	proyectos.put(proyecto.codigoProyecto, proyecto);
+    	
     	for (int i = 0; i < titulos.length; i++) {
 			agregarTareaEnProyecto(proyecto.codigoProyecto, titulos[i], descripcion[i], dias[i]);
-		}
-    	
+		}	
     }
 
 	@Override
@@ -113,7 +114,7 @@ public class HomeSolution implements IHomeSolution {
     	int menosRetraso = 99;
     	
     	for (Empleado empleado : empleados.values()) {
-			if(empleado.getEstado() == false && menosRetraso < empleado.getRetraso()) {
+			if(empleado.getEstado() == false && menosRetraso > empleado.getRetraso()) {
 				menosRetraso = empleado.getRetraso();
 				empleadoDisponible = empleado.getLegajo();
 			}
@@ -165,7 +166,7 @@ public class HomeSolution implements IHomeSolution {
 		if(numero <= 0 || fin == null) {
 			throw new IllegalArgumentException("Ingrese valores validos");
 		}
-		if(Integer.parseInt(fin)< Integer.parseInt(getProyecto(numero).getFechaInicio())) {
+		if(LocalDate.parse(fin).isBefore(LocalDate.parse(getProyecto(numero).getFechaInicio()))) {
 			throw new IllegalArgumentException("La fecha ingresada no puede ser anterior a la fecha de inicio");
 		}
 		getProyecto(numero).finalizarProyecto(fin);
@@ -193,7 +194,7 @@ public class HomeSolution implements IHomeSolution {
     	int menosRetraso = 99;
     	
     	for (Empleado empleado : empleados.values()) {
-			if(empleado.getEstado() == false && menosRetraso < empleado.getRetraso()) {
+			if(empleado.getEstado() == false && menosRetraso > empleado.getRetraso()) {
 				menosRetraso = empleado.getRetraso();
 				empleadoDisponible = empleado.getLegajo();
 			}
@@ -209,18 +210,48 @@ public class HomeSolution implements IHomeSolution {
     	getEmpleado(empleadoLiberado).quitarTarea();
     }
 	
-//	@Override
-//    public double costoProyecto(Integer numero){
-//		
-//    }
+	@Override
+    public double costoProyecto(Integer numero){
+		Proyecto proyecto = getProyecto(numero);
+		double costoProyecto = 0;
+		
+		for (Tarea tarea : proyecto.tareas.values()) {
+			costoProyecto += (tarea.getDias());
+			if(getEmpleado(tarea.getEmpleadoAsignado()) != null) {
+				if(tarea.getDias() % 1 != 0) {
+					if(getEmpleado(tarea.getEmpleadoAsignado()).getRetraso() > 0) {
+						costoProyecto += (tarea.getDias() + (1 - (tarea.getDias() % 1))) * getEmpleado(tarea.getEmpleadoAsignado()).valor;
+					} else {
+						costoProyecto += ((tarea.getDias() + (1 - (tarea.getDias() % 1))) * getEmpleado(tarea.getEmpleadoAsignado()).valor) * 1.02;
+					}
+				} if(tarea.getDias() % 1 == 0) {
+					if(getEmpleado(tarea.getEmpleadoAsignado()).getRetraso() > 0) {
+						costoProyecto += tarea.getDias() * getEmpleado(tarea.getEmpleadoAsignado()).valor;
+					} else {
+						costoProyecto += (tarea.getDias() * getEmpleado(tarea.getEmpleadoAsignado()).valor) * 1.02;
+					}
+				}
+			} else {
+				costoProyecto += tarea.getDias() * 8 * getEmpleado(tarea.getEmpleadoAsignado()).valor;
+			}
+		}
+		
+		if(proyecto.getFechaFinReal() != proyecto.getFechaFinEstimado()) {
+			costoProyecto = costoProyecto * 1.25;
+		} else {
+			costoProyecto = costoProyecto * 1.35;
+		}
+		
+		return costoProyecto;
+    }
 	
 	@Override
     public List<Tupla<Integer, String>> proyectosFinalizados(){
 		List<Tupla<Integer,String>> lista = new ArrayList<>();
-		Tupla<Integer,String> tupla = new Tupla<>();
 		
 		for (Proyecto proyecto : proyectos.values()) {
 			if(proyecto.estaFinalizado()) {
+				Tupla<Integer,String> tupla = new Tupla<>();
 				tupla.setValor1(proyecto.codigoProyecto);
 				tupla.setValor2(proyecto.domicilio);
 				lista.add(tupla);
@@ -233,10 +264,10 @@ public class HomeSolution implements IHomeSolution {
 	@Override
     public List<Tupla<Integer, String>> proyectosPendientes(){
 		List<Tupla<Integer,String>> lista = new ArrayList<>();
-		Tupla<Integer,String> tupla = new Tupla<>();
 		
 		for (Proyecto proyecto : proyectos.values()) {
 			if(proyecto.getEstado() == "PENDIENTE") {
+				Tupla<Integer,String> tupla = new Tupla<>();
 				tupla.setValor1(proyecto.codigoProyecto);
 				tupla.setValor2(proyecto.domicilio);
 				lista.add(tupla);
@@ -249,10 +280,10 @@ public class HomeSolution implements IHomeSolution {
 	@Override
     public List<Tupla<Integer, String>> proyectosActivos(){
 		List<Tupla<Integer,String>> lista = new ArrayList<>();
-		Tupla<Integer,String> tupla = new Tupla<>();
 		
 		for (Proyecto proyecto : proyectos.values()) {
 			if(proyecto.getEstado() == "ACTIVOS") {
+				Tupla<Integer,String> tupla = new Tupla<>();
 				tupla.setValor1(proyecto.codigoProyecto);
 				tupla.setValor2(proyecto.domicilio);
 				lista.add(tupla);
@@ -290,13 +321,15 @@ public class HomeSolution implements IHomeSolution {
 	@Override
     public List<Tupla<Integer, String>> empleadosAsignadosAProyecto(Integer numero){
 		List<Tupla<Integer,String>> lista = new ArrayList<>();
-		Tupla<Integer,String> tupla = new Tupla<>();
 		Proyecto proyecto = getProyecto(numero);
 		
 		for (Tarea tarea : proyecto.tareas.values()) {
-			tupla.setValor1(tarea.getEmpleadoAsignado());
-			tupla.setValor2(getEmpleado(tarea.getEmpleadoAsignado()).getNombre());
-			lista.add(tupla);
+			if(tarea.getEmpleadoAsignado() != 0) {
+				Tupla<Integer,String> tupla = new Tupla<>();
+				tupla.setValor1(tarea.getEmpleadoAsignado());
+				tupla.setValor2(getEmpleado(tarea.getEmpleadoAsignado()).getNombre());
+				lista.add(tupla);
+			}
 		}
 		
 		return lista;
@@ -307,6 +340,10 @@ public class HomeSolution implements IHomeSolution {
 		ArrayList<Tarea> tareas = getProyecto(numero).getTareasProyecto();
 		Object[] tareasSinAsignar =  new Object[tareas.size()];
 		int cont = 0;
+		
+		if(getProyecto(numero).estaFinalizado()) {
+			throw new IllegalArgumentException("El proyecto esta finalizado");
+		}
 		
 		for (Tarea tarea : tareas) {
 			if(tarea.getEstado() == false) {
