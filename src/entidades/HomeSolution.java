@@ -136,7 +136,11 @@ public class HomeSolution implements IHomeSolution {
 		
 		getTarea(numero, titulo).agregarRetraso(cantidadDias);
 		int empleadoRetrasado = getTarea(numero, titulo).getEmpleadoAsignado();
-		getEmpleado(empleadoRetrasado).sumarRetraso();
+		if (empleadoRetrasado == 0) {
+			throw new IllegalArgumentException("No hay un empleado asignado");
+		} else {			
+			getEmpleado(empleadoRetrasado).sumarRetraso();
+		}
     }
 	
 	@Override
@@ -295,17 +299,15 @@ public class HomeSolution implements IHomeSolution {
 
 	@Override
     public Object[] empleadosNoAsignados(){
-		Object[] empleadosNoAsignados =  new Object[empleados.size()];
-		int cont = 0;
-		
+		ArrayList<Integer> empleadosNoAsignados = new ArrayList<>();
 		for (Empleado empleado : empleados.values()) {
 			if(empleado.getEstado() == false) {
-				empleadosNoAsignados[cont] = empleado.getLegajo();
-				cont++;
+				empleadosNoAsignados.add(empleado.getLegajo());
 			}
 		}
+		Object[] listaEmpleadosNoAsignados =  empleadosNoAsignados.toArray();
 		
-		return empleadosNoAsignados;
+		return listaEmpleadosNoAsignados;
 	}
 
 	@Override
