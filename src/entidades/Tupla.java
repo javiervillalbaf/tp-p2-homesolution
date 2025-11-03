@@ -4,12 +4,12 @@ public class Tupla <T1,T2>{
     private T1 valor1;
     private T2 valor2;
 
-    public Tupla(T1 valor1, T2 valor2) {
+    public Tupla() {
         this.valor1 = valor1;
         this.valor2 = valor2;
     }
 
-    public T1 getValor1() {
+	public T1 getValor1() {
         return valor1;
     }
 

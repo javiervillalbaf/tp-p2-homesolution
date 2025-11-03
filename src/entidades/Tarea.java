@@ -19,8 +19,7 @@ public class Tarea {
 
 	@Override
 	public String toString() {
-		return "Tarea [codigoProyecto=" + codigoProyecto + ", titulo=" + titulo + ", descripcion=" + descripcion
-				+ ", estado=" + estado + ", horas=" + dias + ", empleadoAsignado=" + empleadoAsignado + "]";
+		return "titulo=" + titulo;
 	}
 	
 	public void cambiarEstado() {

@@ -1,12 +1,13 @@
 package entidades;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 
 public class Proyecto {
-	int codigoProyecto = 1;
+	public int codigoProyecto = 1;
 	private String[] cliente;
-	private String domicilio;
+	public String domicilio;
 	private String inicio;
 	private String finEstimado;
 	private String finReal;
@@ -24,13 +25,23 @@ public class Proyecto {
 		this.finEstimado = finEstimado;
 		this.estado = "PENDIENTE";
 		this.costo = 0;
+		this.tareas = new HashMap<>();
 	}
 
 	@Override
 	public String toString() {
-		return "Proyecto [codigoProyecto=" + codigoProyecto + ", cliente=" + Arrays.toString(cliente) + ", domicilio="
-				+ domicilio + ", inicio=" + inicio + ", finEstimado=" + finEstimado + ", finReal=" + finReal
-				+ ", estado=" + estado + ", costo=" + costo + ", tareas=" + tareas + "]";
+		StringBuilder sb = new StringBuilder();
+		sb.append("Proyecto [codigoProyecto=").append(codigoProyecto)
+	      .append(", cliente=").append(Arrays.toString(cliente))
+	      .append(", domicilio=").append(domicilio)
+	      .append(", inicio=").append(inicio)
+	      .append(", finEstimado=").append(finEstimado)
+	      .append(", finReal=").append(finReal)
+	      .append(", estado=").append(estado)
+	      .append(", costo=").append(costo)
+	      .append(", tareas=").append(tareas)
+	      .append("]");
+		return sb.toString();
 	}	
 	
 	public boolean estaFinalizado() {
@@ -38,6 +49,10 @@ public class Proyecto {
 			return true;
 		}
 		return false;
+	}
+	
+	public String getEstado() {
+		return estado;
 	}
 	
 	public void finalizarProyecto(String fechaFin) {
@@ -48,8 +63,23 @@ public class Proyecto {
 	public String getFechaInicio() {
 		return inicio;
 	}
+	
+	public String getDomicilio() {
+		return domicilio;
+	}
+	
 	public Tarea getTarea(String titulo){
 		return tareas.get(titulo);
+	}
+	
+	public ArrayList<Tarea> getTareasProyecto() {
+		ArrayList<Tarea> listaTareas = new ArrayList<>();
+		
+		for (Tarea tarea : tareas.values()) {
+			listaTareas.add(tarea);
+		}
+		
+		return listaTareas;
 	}
 	
 }

@@ -1,6 +1,8 @@
 package entidades;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 public class HomeSolution implements IHomeSolution {
@@ -18,7 +20,16 @@ public class HomeSolution implements IHomeSolution {
 		return empleados.get(numero);
 	}
 	
+	public void validadorProyectos() {
+		if (proyectos == null) {
+			throw new IllegalArgumentException("No se encuentran proyectos");
+		}
+	}
 	
+	public HomeSolution() {
+		this.empleados = new HashMap<>();
+		this.proyectos = new HashMap<>();
+	}
 	
 	@Override
     public void registrarEmpleado(String nombre, double valor) {
@@ -45,8 +56,9 @@ public class HomeSolution implements IHomeSolution {
     	if(titulos == null || descripcion == null || dias == null || domicilio == null || cliente == null || inicio == null || finEstimado == null) {
     		throw new IllegalArgumentException("Ingrese valores validos");
     	}
-    	
+    	 	
     	Proyecto proyecto = new Proyecto(cliente, domicilio, inicio, finEstimado);
+    	proyectos.put(proyecto.codigoProyecto, proyecto);
     	for (int i = 0; i < titulos.length; i++) {
 			agregarTareaEnProyecto(proyecto.codigoProyecto, titulos[i], descripcion[i], dias[i]);
 		}
@@ -131,9 +143,10 @@ public class HomeSolution implements IHomeSolution {
 		if(numero <= 0 || titulo == null || descripcion == null || dias <= 0) {
 			throw new IllegalArgumentException("Ingrese valores validos");
 		}
+		validadorProyectos();
 		
 		Tarea tarea = new Tarea(numero, titulo, descripcion, dias);
-		proyectos.get(numero).tareas.put(titulo, tarea);
+		getProyecto(numero).tareas.put(titulo, tarea);
     }
 	
 	@Override
@@ -160,81 +173,191 @@ public class HomeSolution implements IHomeSolution {
 	
 	@Override
     public void reasignarEmpleadoEnProyecto(Integer numero, Integer legajo, String titulo){
-
+		if(getTarea(numero, titulo).getEmpleadoAsignado() == 0 ) {
+			throw new IllegalArgumentException("No hay ningun empleado asignado a la tarea");
+		}
+		
+		int empleadoLiberado = getTarea(numero, titulo).getEmpleadoAsignado();
+		getTarea(numero, titulo).reasignarEmpleado(legajo);
+		getEmpleado(empleadoLiberado).quitarTarea();
+		getEmpleado(legajo).reasignarTarea(titulo);
     }
 	
 	@Override
     public void reasignarEmpleadoConMenosRetraso(Integer numero, String titulo){
-
+		if(getTarea(numero, titulo).getEmpleadoAsignado() == 0) {
+			throw new IllegalArgumentException("No hay ningun empleado asignado a la tarea");
+		}
+		
+		int empleadoDisponible = 0;
+    	int menosRetraso = 99;
+    	
+    	for (Empleado empleado : empleados.values()) {
+			if(empleado.getEstado() == false && menosRetraso < empleado.getRetraso()) {
+				menosRetraso = empleado.getRetraso();
+				empleadoDisponible = empleado.getLegajo();
+			}
+		}
+    	
+    	if(empleadoDisponible == 0) {
+    		throw new IllegalArgumentException("No hay empleados disponibles");
+    	}
+    	
+    	int empleadoLiberado = getTarea(numero, titulo).getEmpleadoAsignado();
+    	getTarea(numero, titulo).reasignarEmpleado(empleadoDisponible);
+    	getEmpleado(empleadoDisponible).reasignarTarea(titulo);
+    	getEmpleado(empleadoLiberado).quitarTarea();
     }
 	
-	@Override
-    public double costoProyecto(Integer numero){
-
-    }
+//	@Override
+//    public double costoProyecto(Integer numero){
+//		
+//    }
 	
 	@Override
     public List<Tupla<Integer, String>> proyectosFinalizados(){
-
+		List<Tupla<Integer,String>> lista = new ArrayList<>();
+		Tupla<Integer,String> tupla = new Tupla<>();
+		
+		for (Proyecto proyecto : proyectos.values()) {
+			if(proyecto.estaFinalizado()) {
+				tupla.setValor1(proyecto.codigoProyecto);
+				tupla.setValor2(proyecto.domicilio);
+				lista.add(tupla);
+			}
+		}
+		
+		return lista;
 	}
 
 	@Override
     public List<Tupla<Integer, String>> proyectosPendientes(){
-    	
+		List<Tupla<Integer,String>> lista = new ArrayList<>();
+		Tupla<Integer,String> tupla = new Tupla<>();
+		
+		for (Proyecto proyecto : proyectos.values()) {
+			if(proyecto.getEstado() == "PENDIENTE") {
+				tupla.setValor1(proyecto.codigoProyecto);
+				tupla.setValor2(proyecto.domicilio);
+				lista.add(tupla);
+			}
+		}
+		
+		return lista;
     }
 
 	@Override
     public List<Tupla<Integer, String>> proyectosActivos(){
-
+		List<Tupla<Integer,String>> lista = new ArrayList<>();
+		Tupla<Integer,String> tupla = new Tupla<>();
+		
+		for (Proyecto proyecto : proyectos.values()) {
+			if(proyecto.getEstado() == "ACTIVOS") {
+				tupla.setValor1(proyecto.codigoProyecto);
+				tupla.setValor2(proyecto.domicilio);
+				lista.add(tupla);
+			}
+		}
+		
+		return lista;
 	}
 
 	@Override
     public Object[] empleadosNoAsignados(){
-
+		Object[] empleadosNoAsignados =  new Object[empleados.size()];
+		int cont = 0;
+		
+		for (Empleado empleado : empleados.values()) {
+			if(empleado.getEstado() == false) {
+				empleadosNoAsignados[cont] = empleado.getLegajo();
+				cont++;
+			}
+		}
+		
+		return empleadosNoAsignados;
 	}
 
 	@Override
     public boolean estaFinalizado(Integer numero){
-
+		return getProyecto(numero).estaFinalizado();
 	}
 
 	@Override
     public int consultarCantidadRetrasosEmpleado(Integer legajo) {
-
+		return getEmpleado(legajo).getRetraso();
 	}
 
 	@Override
     public List<Tupla<Integer, String>> empleadosAsignadosAProyecto(Integer numero){
-
+		List<Tupla<Integer,String>> lista = new ArrayList<>();
+		Tupla<Integer,String> tupla = new Tupla<>();
+		Proyecto proyecto = getProyecto(numero);
+		
+		for (Tarea tarea : proyecto.tareas.values()) {
+			tupla.setValor1(tarea.getEmpleadoAsignado());
+			tupla.setValor2(getEmpleado(tarea.getEmpleadoAsignado()).getNombre());
+			lista.add(tupla);
+		}
+		
+		return lista;
 	}
 
 	@Override
     public Object[] tareasProyectoNoAsignadas(Integer numero){
-
+		ArrayList<Tarea> tareas = getProyecto(numero).getTareasProyecto();
+		Object[] tareasSinAsignar =  new Object[tareas.size()];
+		int cont = 0;
+		
+		for (Tarea tarea : tareas) {
+			if(tarea.getEstado() == false) {
+				tareasSinAsignar[cont] = tarea;
+				cont++;
+			}
+		}
+		
+		return tareasSinAsignar;
 	}
     
 	@Override
     public Object[] tareasDeUnProyecto(Integer numero){
-
+		ArrayList<Tarea> tareas = getProyecto(numero).getTareasProyecto();
+		Object[] tareasSinAsignar =  new Object[tareas.size()];
+		int cont = 0;
+		
+		for (Tarea tarea : tareas) {
+			tareasSinAsignar[cont] = tarea;
+			cont++;
+		}
+		
+		return tareasSinAsignar;
 	}
 
 	@Override
     public String consultarDomicilioProyecto(Integer numero){
-
+		return getProyecto(numero).getDomicilio();
 	}
 
 	@Override
     public boolean tieneRestrasos(Integer legajo){
-
+		return getEmpleado(legajo).getRetraso() > 0;
 	}
 	
 	@Override
     public List<Tupla<Integer, String>> empleados(){
-
+		List<Tupla<Integer,String>> lista = new ArrayList<>();
+		
+		for (Empleado empleado : empleados.values()) {
+			Tupla<Integer,String> tupla = new Tupla<>();
+			tupla.setValor1(empleado.getLegajo());
+			tupla.setValor2(empleado.getNombre());
+			lista.add(tupla);
+		}
+		
+		return lista;
 	}
 
 	@Override
     public String consultarProyecto(Integer numero){
-
+		return getProyecto(numero).toString();
 	}
 }

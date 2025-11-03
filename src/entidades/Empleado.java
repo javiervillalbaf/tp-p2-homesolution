@@ -2,8 +2,8 @@ package entidades;
 
 public class Empleado {
 	private String nombre;
-	private int legajo = 1;
-	private int contadorLegajo = 0;
+	private int legajo;
+	private static int cont = 0;
 	private boolean estado;
 	private double valor;
 	private int retrasos;
@@ -11,8 +11,8 @@ public class Empleado {
 	
 	public Empleado(String nombre, double valor) {
 		this.nombre = nombre;
-		contadorLegajo++;
-		this.legajo = contadorLegajo;
+		cont++;
+		this.legajo = cont;
 		this.estado = false;
 		this.valor = valor;
 		this.retrasos = 0;
@@ -26,11 +26,21 @@ public class Empleado {
 	
 	public void reasignarTarea(String tarea) {
 		tituloTarea = tarea;
+		estado = true;
 	}
+	
+	public void quitarTarea() {
+		tituloTarea = null;
+		estado = false;
+	}
+	
 	public void sumarRetraso() {
 		retrasos += 1;
 	}
 	
+	public String getNombre() {
+		return nombre;
+	}
 	
 	public int getLegajo() {
 		return legajo;
