@@ -54,4 +54,7 @@ public class Empleado {
 	public String getTareaAsignada() {
 		return tituloTarea;
 	}
+	public String getCategoria() {
+		return getCategoria();
+	}
 }

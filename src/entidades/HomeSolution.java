@@ -43,7 +43,7 @@ public class HomeSolution implements IHomeSolution {
 	
 	@Override
     public void registrarEmpleado(String nombre, double valor, String categoria) {
-		if(nombre == null || valor <= 0 || categoria == null) {
+		if(nombre == null || valor <= 0 || categoria == null  || !(categoria.equalsIgnoreCase("EXPERTO") || categoria.equalsIgnoreCase("INICIAL") || categoria.equalsIgnoreCase("TECNICO"))) {
     		throw new IllegalArgumentException("Ingrese un nombre valido y valor mayor a 0");
     	}
     	
@@ -52,19 +52,26 @@ public class HomeSolution implements IHomeSolution {
     }
 	
 	@Override
-    public void registrarProyecto(String[] titulos, String[] descripcion, double[] dias,
-                                  String domicilio, String[] cliente, String inicio, String finEstimado) {
-    	if(titulos == null || descripcion == null || dias == null || domicilio == null || cliente == null || inicio == null || finEstimado == null) {
-    		throw new IllegalArgumentException("Ingrese valores validos");
-    	}
-    	 	
-    	Proyecto proyecto = new Proyecto(cliente, domicilio, inicio, finEstimado);
-    	proyectos.put(proyecto.codigoProyecto, proyecto);
-    	
-    	for (int i = 0; i < titulos.length; i++) {
-			agregarTareaEnProyecto(proyecto.codigoProyecto, titulos[i], descripcion[i], dias[i]);
-		}	
-    }
+	public void registrarProyecto(String[] titulos, String[] descripcion, double[] dias,
+            String domicilio, String[] cliente, String inicio, String finEstimado) {
+			LocalDate fechaInicio = LocalDate.parse(inicio);
+			LocalDate fechaFin = LocalDate.parse(finEstimado);
+
+			if (fechaFin.isBefore(fechaInicio)) {
+				throw new IllegalArgumentException("La fecha de fin no puede ser anterior al inicio.");
+			}
+
+			if(titulos == null || descripcion == null || dias == null || domicilio == null || cliente == null || inicio == null || finEstimado == null) {
+				throw new IllegalArgumentException("Ingrese valores validos");
+			}
+
+			Proyecto proyecto = new Proyecto(cliente, domicilio, inicio, finEstimado);
+			proyectos.put(proyecto.codigoProyecto, proyecto);
+
+			for (int i = 0; i < titulos.length; i++) {
+				agregarTareaEnProyecto(proyecto.codigoProyecto, titulos[i], descripcion[i], dias[i]);
+			}    
+	}
 
 	@Override
     public void asignarResponsableEnTarea(Integer numero, String titulo) {
@@ -87,6 +94,7 @@ public class HomeSolution implements IHomeSolution {
 				empleadoDisponible = empleado.getLegajo();
 				getTarea(numero, titulo).reasignarEmpleado(empleadoDisponible);
 		    	getEmpleado(empleadoDisponible).reasignarTarea(titulo);
+		    	getProyecto(numero).activarProyecto();
 				break;
 			}
 		}
@@ -126,6 +134,7 @@ public class HomeSolution implements IHomeSolution {
     	
     	getTarea(numero, titulo).reasignarEmpleado(empleadoDisponible);
     	getEmpleado(empleadoDisponible).reasignarTarea(titulo);
+    	getProyecto(numero).activarProyecto();
     }
 	
 	@Override		 
@@ -170,11 +179,15 @@ public class HomeSolution implements IHomeSolution {
 		if(numero <= 0 || fin == null) {
 			throw new IllegalArgumentException("Ingrese valores validos");
 		}
-		if(LocalDate.parse(fin).isBefore(LocalDate.parse(getProyecto(numero).getFechaInicio()))) {
-			throw new IllegalArgumentException("La fecha ingresada no puede ser anterior a la fecha de inicio");
+		if(LocalDate.parse(fin).isBefore(LocalDate.parse(getProyecto(numero).getFechaInicio())) || LocalDate.parse(fin).isBefore(LocalDate.parse(getProyecto(numero).getFechaFinEstimado()))) {
+			throw new IllegalArgumentException("La fecha ingresada no puede ser anterior a la fecha de inicio o la fecha estimada de Fin");
 		}
 		getProyecto(numero).finalizarProyecto(fin);
-    }
+		ArrayList<Tarea> tareas = getProyecto(numero).getTareasProyecto();
+		for (Tarea tarea : tareas) {
+			tarea.quitarEmpleado();
+		}
+	}
 	
 	@Override
     public void reasignarEmpleadoEnProyecto(Integer numero, Integer legajo, String titulo){
@@ -239,13 +252,13 @@ public class HomeSolution implements IHomeSolution {
 				costoProyecto += tarea.getDias() * 8 * getEmpleado(tarea.getEmpleadoAsignado()).valor;
 			}
 		}
-		
-		if(proyecto.getFechaFinReal() != proyecto.getFechaFinEstimado()) {
-			costoProyecto = costoProyecto * 1.25;
-		} else {
-			costoProyecto = costoProyecto * 1.35;
+		if (proyecto.estaFinalizado()) {
+			if(proyecto.getFechaFinReal() != proyecto.getFechaFinEstimado()) {
+				costoProyecto = costoProyecto * 1.25;
+			} else {
+				costoProyecto = costoProyecto * 1.35;
+			}
 		}
-		
 		return costoProyecto;
     }
 	
@@ -286,7 +299,7 @@ public class HomeSolution implements IHomeSolution {
 		List<Tupla<Integer,String>> lista = new ArrayList<>();
 		
 		for (Proyecto proyecto : proyectos.values()) {
-			if(proyecto.getEstado() == "ACTIVOS") {
+			if(proyecto.getEstado() == "ACTIVO") {
 				Tupla<Integer,String> tupla = new Tupla<>();
 				tupla.setValor1(proyecto.codigoProyecto);
 				tupla.setValor2(proyecto.domicilio);
@@ -298,17 +311,19 @@ public class HomeSolution implements IHomeSolution {
 	}
 
 	@Override
-    public Object[] empleadosNoAsignados(){
-		ArrayList<Integer> empleadosNoAsignados = new ArrayList<>();
-		for (Empleado empleado : empleados.values()) {
-			if(empleado.getEstado() == false) {
-				empleadosNoAsignados.add(empleado.getLegajo());
-			}
-		}
-		Object[] listaEmpleadosNoAsignados =  empleadosNoAsignados.toArray();
-		
-		return listaEmpleadosNoAsignados;
-	}
+	public Object[] empleadosNoAsignados(){
+        Object[] empleadosNoAsignados =  new Object[empleados.size()];
+        int cont = 0;
+        
+        for (Empleado empleado : empleados.values()) {
+            if(empleado.getEstado() == false) {
+                empleadosNoAsignados[cont] = empleado.getLegajo();
+                cont++;
+            }
+        }
+        
+        return empleadosNoAsignados;
+    }
 
 	@Override
     public boolean estaFinalizado(Integer numero){
@@ -339,36 +354,25 @@ public class HomeSolution implements IHomeSolution {
 
 	@Override
     public Object[] tareasProyectoNoAsignadas(Integer numero){
-		ArrayList<Tarea> tareas = getProyecto(numero).getTareasProyecto();
-		Object[] tareasSinAsignar =  new Object[tareas.size()];
-		int cont = 0;
-		
 		if(getProyecto(numero).estaFinalizado()) {
 			throw new IllegalArgumentException("El proyecto esta finalizado");
 		}
+		ArrayList<Tarea> tareas = getProyecto(numero).getTareasProyecto();
+		ArrayList<Tarea> tareasSinAsignar =  new ArrayList<>();
 		
 		for (Tarea tarea : tareas) {
-			if(tarea.getEstado() == false) {
-				tareasSinAsignar[cont] = tarea;
-				cont++;
+			if(tarea.getEmpleadoAsignado() == 0) {
+				tareasSinAsignar.add(tarea);
 			}
 		}
 		
-		return tareasSinAsignar;
+		return tareasSinAsignar.toArray();
 	}
     
 	@Override
     public Object[] tareasDeUnProyecto(Integer numero){
-		ArrayList<Tarea> tareas = getProyecto(numero).getTareasProyecto();
-		Object[] tareasSinAsignar =  new Object[tareas.size()];
-		int cont = 0;
-		
-		for (Tarea tarea : tareas) {
-			tareasSinAsignar[cont] = tarea;
-			cont++;
-		}
-		
-		return tareasSinAsignar;
+		ArrayList<Tarea> tareas = getProyecto(numero).getTareasProyecto();	
+		return tareas.toArray();
 	}
 
 	@Override

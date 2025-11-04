@@ -12,4 +12,8 @@ public class EmpleadoDePlanta extends Empleado {
 	public String toString() {
 		return "EmpleadoDePlanta [categoria=" + categoria + "]";
 	}
+	
+	public String getCategoria() {
+		return categoria;
+	}
 }

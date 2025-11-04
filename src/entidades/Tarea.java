@@ -28,6 +28,9 @@ public class Tarea {
 	public void reasignarEmpleado(int empleado) {
 		empleadoAsignado = empleado;
 	}
+	public void quitarEmpleado() {
+		empleadoAsignado = 0;
+	}
 	public void agregarRetraso(double retraso) {
 		dias += retraso;
 	}

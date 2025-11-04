@@ -59,17 +59,23 @@ public class Proyecto {
 		estado = "FINALIZADO";
 		finReal = fechaFin;
 	}
+	public void activarProyecto() {
+		estado = "ACTIVO";
+	}
+	public void proyectoPendiente() {
+		estado = "PENDIENTE";
+	}
 	
 	public String getFechaInicio() {
 		return inicio;
 	}
 	
 	public String getFechaFinEstimado() {
-		return inicio;
+		return finEstimado;
 	}
 	
 	public String getFechaFinReal() {
-		return inicio;
+		return finReal;
 	}
 	
 	public String getDomicilio() {
