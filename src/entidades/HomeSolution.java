@@ -235,21 +235,23 @@ public class HomeSolution implements IHomeSolution {
 		for (Tarea tarea : proyecto.tareas.values()) {
 			costoProyecto += (tarea.getDias());
 			if(getEmpleado(tarea.getEmpleadoAsignado()) != null) {
-				if(tarea.getDias() % 1 != 0) {
-					if(getEmpleado(tarea.getEmpleadoAsignado()).getRetraso() > 0) {
-						costoProyecto += (tarea.getDias() + (1 - (tarea.getDias() % 1))) * getEmpleado(tarea.getEmpleadoAsignado()).valor;
-					} else {
-						costoProyecto += ((tarea.getDias() + (1 - (tarea.getDias() % 1))) * getEmpleado(tarea.getEmpleadoAsignado()).valor) * 1.02;
+				if (getEmpleado(tarea.getEmpleadoAsignado()) != null) {
+					if(tarea.getDias() % 1 != 0) {
+						if(getEmpleado(tarea.getEmpleadoAsignado()).getRetraso() > 0) {
+							costoProyecto += (tarea.getDias() + (1 - (tarea.getDias() % 1))) * getEmpleado(tarea.getEmpleadoAsignado()).valor;
+						} else {
+							costoProyecto += ((tarea.getDias() + (1 - (tarea.getDias() % 1))) * getEmpleado(tarea.getEmpleadoAsignado()).valor) * 1.02;
+						}
+					} if(tarea.getDias() % 1 == 0) {
+						if(getEmpleado(tarea.getEmpleadoAsignado()).getRetraso() > 0) {
+							costoProyecto += tarea.getDias() * getEmpleado(tarea.getEmpleadoAsignado()).valor;
+						} else {
+							costoProyecto += (tarea.getDias() * getEmpleado(tarea.getEmpleadoAsignado()).valor) * 1.02;
+						}
 					}
-				} if(tarea.getDias() % 1 == 0) {
-					if(getEmpleado(tarea.getEmpleadoAsignado()).getRetraso() > 0) {
-						costoProyecto += tarea.getDias() * getEmpleado(tarea.getEmpleadoAsignado()).valor;
-					} else {
-						costoProyecto += (tarea.getDias() * getEmpleado(tarea.getEmpleadoAsignado()).valor) * 1.02;
-					}
-				}
-			} else {
+				} else {
 				costoProyecto += tarea.getDias() * 8 * getEmpleado(tarea.getEmpleadoAsignado()).valor;
+				}
 			}
 		}
 		if (proyecto.estaFinalizado()) {
