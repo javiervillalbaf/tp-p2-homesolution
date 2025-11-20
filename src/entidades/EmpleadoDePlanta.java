@@ -13,7 +13,7 @@ public class EmpleadoDePlanta extends Empleado {
 		return "EmpleadoDePlanta [categoria=" + categoria + "]";
 	}
 	
-	public String getCategoria() {
-		return categoria;
-	}
+    public String getCategoria() {
+        return categoria;
+    }
 }

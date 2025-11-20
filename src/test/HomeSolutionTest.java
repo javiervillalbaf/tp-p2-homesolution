@@ -8,6 +8,7 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
+import entidades.Empleado;
 import entidades.HomeSolution;
 import entidades.IHomeSolution;
 import entidades.Tupla;
@@ -220,7 +221,7 @@ public class HomeSolutionTest {
         asignarTareas(numeroProyecto);
         homeSolution.registrarEmpleado("Lidia",20000);
         Object[] emp=homeSolution.empleadosNoAsignados();
-        Integer legajo=Integer.parseInt(emp[0].toString());
+        Integer legajo = Integer.parseInt(emp[0].toString());
         homeSolution.reasignarEmpleadoEnProyecto(numeroProyecto,legajo,"Instalacion electrica");
         double costo=calculoCostoSinRetraso();  // Calculo el costo original sin retrasos
         costo /= 1.35;         // quito el porcentaje adicional
