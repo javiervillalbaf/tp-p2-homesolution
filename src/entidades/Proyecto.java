@@ -88,12 +88,17 @@ public class Proyecto {
 	
 	public ArrayList<Tarea> getTareasProyecto() {
 		ArrayList<Tarea> listaTareas = new ArrayList<>();
-		
 		for (Tarea tarea : tareas.values()) {
 			listaTareas.add(tarea);
-		}
-		
+		}	
 		return listaTareas;
+	}
+	
+	public boolean equals(Object obj) {
+	    if (this == obj) return true;
+	    if (obj == null || getClass() != obj.getClass()) return false;
+	    Proyecto other = (Proyecto) obj;
+	    return codigoProyecto == other.codigoProyecto;
 	}
 	
 }

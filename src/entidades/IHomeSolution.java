@@ -220,7 +220,7 @@ public interface IHomeSolution {
      */
     public Object[] tareasProyectoNoAsignadas(Integer numero) ;
     /**
-     * Devuelve las tareas no asignadas de un proyecto.
+     * Devuelve las tareas asignadas de un proyecto.
      * @param numero Número o código del proyecto.
      * @return Arreglo de tareas de un proyecto.
      */

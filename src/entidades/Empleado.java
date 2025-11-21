@@ -15,9 +15,6 @@ public abstract class Empleado {
 		tituloTarea = null;
 	}
 
-	public String toString() {
-		return "" + legajo;
-	}
 	
 	public void reasignarTarea(String tarea) {
 		tituloTarea = tarea;
@@ -45,5 +42,13 @@ public abstract class Empleado {
 		return tituloTarea;
 	}
 
+	public abstract String toString();
 	protected abstract double getValor();
+	
+	public boolean equals(Object obj) {
+	    if (this == obj) return true;
+	    if (obj == null || getClass() != obj.getClass()) return false;
+	    Empleado other = (Empleado) obj;
+	    return legajo == other.legajo;
+	}
 }

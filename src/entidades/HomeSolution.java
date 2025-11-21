@@ -256,7 +256,7 @@ public class HomeSolution implements IHomeSolution {
     	}
 		
 		int empleadoDisponible = 0;
-    	int menosRetraso = 99;
+    	int menosRetraso = Integer.MAX_VALUE;
     	
     	for (Empleado empleado : empleados.values()) {
 			if(empleado.getTareaAsignada() == null && menosRetraso > empleado.getRetraso()) {
@@ -371,20 +371,6 @@ public class HomeSolution implements IHomeSolution {
 		
 		return lista;
 	}
-
-//	@Override
-//	public Object[] empleadosNoAsignados(){
-//        Object[] empleadosNoAsignados =  new Object[empleados.size()];
-//        int cont = 0;
-//        
-//        for (Empleado empleado : empleados.values()) {
-//            if(empleado.getTareaAsignada() == null) {
-//                empleadosNoAsignados[cont] = empleado.getLegajo();
-//                cont++;
-//            }
-//        }
-//        return empleadosNoAsignados;
-//    }
 	
 	@Override
 	public Object[] empleadosNoAsignados(){
@@ -395,13 +381,6 @@ public class HomeSolution implements IHomeSolution {
             }
         }
         return arrayEmpleadosNoAsignados.toArray();
-//        Object[] empleadosNoAsignados =  new Object[arrayEmpleadosNoAsignados.size()];
-//        int index = 0;
-//        for (Integer empleado : arrayEmpleadosNoAsignados) {
-//              empleadosNoAsignados[index] = empleado;
-//              index++;
-//        }
-//        return empleadosNoAsignados;
     }
 	
 	@Override
@@ -436,15 +415,16 @@ public class HomeSolution implements IHomeSolution {
 		if(getProyecto(numero).estaFinalizado()) {
 			throw new IllegalArgumentException("El proyecto esta finalizado");
 		}
-		ArrayList<Tarea> tareas = getProyecto(numero).getTareasProyecto();
+		ArrayList<Tarea> tareasP = getProyecto(numero).getTareasProyecto();
+		Iterator<Tarea> tareas = tareasP.iterator();
 		ArrayList<Tarea> tareasSinAsignar =  new ArrayList<>();
 		
-		for (Tarea tarea : tareas) {
+		while (tareas.hasNext()) {
+			Tarea tarea = tareas.next();
 			if(tarea.getEmpleadoAsignado() == 0) {
 				tareasSinAsignar.add(tarea);
 			}
 		}
-		
 		return tareasSinAsignar.toArray();
 	}
     

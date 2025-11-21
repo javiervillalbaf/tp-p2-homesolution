@@ -11,4 +11,16 @@ public class EmpleadoComun extends Empleado {
 		public double getValor() {
 	        return valorXHora;
 	    }
+		@Override
+		public String toString() {
+			return "" + getLegajo();
+		}
+		
+		@Override
+	    public boolean equals(Object obj) {
+		    if (this == obj) return true;
+		    if (obj == null || getClass() != obj.getClass()) return false;
+		    EmpleadoComun other = (EmpleadoComun) obj;
+		    return getLegajo() == other.getLegajo();
+		}
 }

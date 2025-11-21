@@ -22,4 +22,11 @@ public class EmpleadoDePlanta extends Empleado {
     public double getValor() {
         return valorXDia;
     }
+    @Override
+    public boolean equals(Object obj) {
+	    if (this == obj) return true;
+	    if (obj == null || getClass() != obj.getClass()) return false;
+	    EmpleadoDePlanta other = (EmpleadoDePlanta) obj;
+	    return getLegajo() == other.getLegajo();
+	}
 }

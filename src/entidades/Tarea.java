@@ -44,5 +44,11 @@ public class Tarea {
 	public double getDias() {
 		return dias;
 	}
+	public boolean equals(Object obj) {
+	    if (this == obj) return true;
+	    if (obj == null || getClass() != obj.getClass()) return false;
+	    Tarea other = (Tarea) obj;
+	    return titulo == other.titulo;
+	}
 	
 }
