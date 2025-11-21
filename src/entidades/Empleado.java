@@ -1,18 +1,16 @@
 package entidades;
 
-public class Empleado {
+public abstract class Empleado {
 	private String nombre;
 	private int legajo;
 	private static int cont = 0;
-	public double valor;
 	private int retrasos;
 	private String tituloTarea;
 	
-	public Empleado(String nombre, double valor) {
+	public Empleado(String nombre) {
 		this.nombre = nombre;
 		cont++;
 		this.legajo = cont;
-		this.valor = valor;
 		this.retrasos = 0;
 		tituloTarea = null;
 	}
@@ -46,4 +44,6 @@ public class Empleado {
 	public String getTareaAsignada() {
 		return tituloTarea;
 	}
+
+	protected abstract double getValor();
 }

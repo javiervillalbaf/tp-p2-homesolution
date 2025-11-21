@@ -2,9 +2,11 @@ package entidades;
 
 public class EmpleadoDePlanta extends Empleado {
 	private String categoria;
+	public double valorXDia;
 
 	public EmpleadoDePlanta(String nombre, double valor, String categoria) {
-		super(nombre, valor);
+		super(nombre);
+		this.valorXDia = valor;
 		this.categoria = categoria;
 	}
 
@@ -15,5 +17,9 @@ public class EmpleadoDePlanta extends Empleado {
 	
     public String getCategoria() {
         return categoria;
+    }
+    @Override
+    public double getValor() {
+        return valorXDia;
     }
 }

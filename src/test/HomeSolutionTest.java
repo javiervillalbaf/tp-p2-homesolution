@@ -154,7 +154,6 @@ public class HomeSolutionTest {
         Object[] empleadosDisponibles=homeSolution.empleadosNoAsignados();
         List<Tupla<Integer, String>> todosLosEmpleados=homeSolution.empleados();
         assertEquals(1, todosLosEmpleados.size() - empleadosDisponibles.length);
-
     }
     @Test
     public void testAsignarElQueTieneMenosRetrasos() throws Exception{

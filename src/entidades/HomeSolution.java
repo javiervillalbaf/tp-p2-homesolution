@@ -2,6 +2,7 @@ package entidades;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -10,6 +11,10 @@ public class HomeSolution implements IHomeSolution {
 	HashMap<Integer,Empleado> empleados;
 	HashMap<Integer,Proyecto> proyectos;
 
+	public HomeSolution() {
+		this.empleados = new HashMap<>();
+		this.proyectos = new HashMap<>();
+	}
 	
 	public Proyecto getProyecto(int numero) {
 		return proyectos.get(numero);
@@ -27,17 +32,13 @@ public class HomeSolution implements IHomeSolution {
 		}
 	}
 	
-	public HomeSolution() {
-		this.empleados = new HashMap<>();
-		this.proyectos = new HashMap<>();
-	}
 	
 	@Override
     public void registrarEmpleado(String nombre, double valor) {
     	if(nombre == null || valor <= 0) {
     		throw new IllegalArgumentException("Ingrese un nombre valido y valor mayor a 0");
     	}
-    	Empleado empleado = new Empleado(nombre, valor);
+    	EmpleadoComun empleado = new EmpleadoComun(nombre, valor);
     	empleados.put(empleado.getLegajo(), empleado);
     }
 	
@@ -286,28 +287,28 @@ public class HomeSolution implements IHomeSolution {
 					if (empPlanta.getCategoria() != null) {
 						if(tarea.getDias() % 1 != 0) {
 							if(empPlanta.getRetraso() > 0) {
-								costoProyecto += (tarea.getDias() + (1 - (tarea.getDias() % 1))) * empPlanta.valor;
+								costoProyecto += (tarea.getDias() + (1 - (tarea.getDias() % 1))) * empPlanta.getValor();
 //								System.out.println("\nEmpleado Planta CON Retraso y dias IMPARES:");
 //								System.out.println((tarea.getDias() + (1 - (tarea.getDias() % 1))) * empPlanta.valor);
 							} else {
-								costoProyecto += ((tarea.getDias() + (1 - (tarea.getDias() % 1))) * empPlanta.valor) * 1.02;
+								costoProyecto += ((tarea.getDias() + (1 - (tarea.getDias() % 1))) * empPlanta.getValor()) * 1.02;
 //								System.out.println("\nEmpleado Planta SIN Retraso y dias IMPARES:");
 //								System.out.println(((tarea.getDias() + (1 - (tarea.getDias() % 1))) * empPlanta.valor) * 1.02);
 							}
 						} if(tarea.getDias() % 1 == 0) {
 							if(empPlanta.getRetraso() > 0) {
-								costoProyecto += tarea.getDias() * empPlanta.valor;
+								costoProyecto += tarea.getDias() * empPlanta.getValor();
 //								System.out.println("\nEmpleado Planta CON Retraso y dias PARES");
 //								System.out.println(tarea.getDias() * empPlanta.valor);
 							} else {
-								costoProyecto += (tarea.getDias() * empPlanta.valor) * 1.02;
+								costoProyecto += (tarea.getDias() * empPlanta.getValor()) * 1.02;
 //								System.out.println("\nEmpleado Planta SIN Retraso y dias PARES:");
 //								System.out.println((tarea.getDias() * empPlanta.valor) * 1.02);
 							}
 						}
 					} 
-				} else {
-					costoProyecto += tarea.getDias() * 8 * getEmpleado(tarea.getEmpleadoAsignado()).valor;
+				} else if (getEmpleado(tarea.getEmpleadoAsignado()) instanceof EmpleadoComun) {
+					costoProyecto += tarea.getDias() * 8 * getEmpleado(tarea.getEmpleadoAsignado()).getValor();
 //					System.out.println("\nEmpleado Normal:");
 //					System.out.println(tarea.getDias() * 8 * getEmpleado(tarea.getEmpleadoAsignado()).valor);
 				}
@@ -481,4 +482,14 @@ public class HomeSolution implements IHomeSolution {
     public String consultarProyecto(Integer numero){
 		return getProyecto(numero).toString();
 	}
+	
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("Proyectos :").append(proyectos)
+	      .append("\nEmpleados :").append(empleados);
+	      
+		return sb.toString();
+	}
+	
 }
