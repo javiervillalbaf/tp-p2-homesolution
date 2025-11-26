@@ -205,6 +205,10 @@ public class HomeSolutionTest {
     public void testCalculaCostoSinRetrasosCorrectamente() throws Exception{
         Integer numeroProyecto = (homeSolution.proyectosPendientes().get(0)).getValor1();
         asignarTareas(numeroProyecto);
+//        System.out.println("\ntestCalculaCostoSinRetrasosCorrectamente():");
+//        System.out.println(homeSolution.costoProyecto(numeroProyecto) + "\n");
+//        System.out.println("Test calculoCostoSinRetraso():");
+//        System.out.println(calculoCostoSinRetraso() + "\n");
         assertEquals(calculoCostoSinRetraso(), homeSolution.costoProyecto(numeroProyecto), 0.001);
     }
     @Test

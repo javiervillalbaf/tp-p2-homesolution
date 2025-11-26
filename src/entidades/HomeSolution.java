@@ -147,7 +147,6 @@ public class HomeSolution implements IHomeSolution {
 		}
     	
     	if(empleadoDisponible == 0) {
-    		System.out.println("No hay empleados disponibles");
     		throw new IllegalArgumentException("No hay empleados disponibles");
     	}
     	
@@ -201,13 +200,19 @@ public class HomeSolution implements IHomeSolution {
 		if(numero <= 0 || numero == null || titulo == null) {
 			throw new IllegalArgumentException("Ingrese valores validos");
 		}
-		if((getProyecto(numero).getTarea(titulo)).getEstado()) {
+		if(getTarea(numero, titulo).getEstado()) {
 			throw new IllegalArgumentException("La tarea ya fue finalizada");
 		}
-		if (getEmpleado(((getProyecto(numero)).getTarea(titulo)).getEmpleadoAsignado()) != null) {
-			(getEmpleado(((getProyecto(numero)).getTarea(titulo)).getEmpleadoAsignado())).quitarTarea();			
+		Empleado empleadoAsignado = getEmpleado(getTarea(numero, titulo).getEmpleadoAsignado());
+		if (empleadoAsignado != null) {
+			if (empleadoAsignado instanceof EmpleadoComun) {
+				getProyecto(numero).agregarCosto(empleadoAsignado.getValor() * (getTarea(numero, titulo).getDias()* 8));
+	    	}
+	    	if (empleadoAsignado instanceof EmpleadoDePlanta) {
+	    		getProyecto(numero).agregarCosto(empleadoAsignado.getValor() * (getTarea(numero, titulo).getDias()));
+	    	}
+			(getEmpleado(getTarea(numero, titulo).getEmpleadoAsignado())).quitarTarea();			
 		}
-		(getProyecto(numero).getTarea(titulo)).quitarEmpleado();
 		(getProyecto(numero).getTarea(titulo)).cambiarEstado();
     }
 
@@ -229,6 +234,7 @@ public class HomeSolution implements IHomeSolution {
 			}
 		}
 		getProyecto(numero).finalizarProyecto(fin);
+		getProyecto(numero).actualizarCosto(costoProyecto(numero));
 	}
 	
 	@Override
@@ -320,7 +326,7 @@ public class HomeSolution implements IHomeSolution {
 			} else {
 				costoProyecto *= 1.35;
 			}
-		}
+		}	
 		return costoProyecto;
     }
 	

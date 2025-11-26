@@ -81,9 +81,20 @@ public class Proyecto {
 	public String getDomicilio() {
 		return domicilio;
 	}
+	public double getCosto() {
+		return costo;
+	}
 	
 	public Tarea getTarea(String titulo){
 		return tareas.get(titulo);
+	}
+	
+	public void  actualizarCosto(double cost) {
+		costo = cost;
+	}
+	
+	public void  agregarCosto(double cost) {
+		costo += cost;
 	}
 	
 	public ArrayList<Tarea> getTareasProyecto() {
