@@ -7,7 +7,7 @@ import java.util.HashMap;
 public class Proyecto {
 	public int codigoProyecto = 0;
 	private static int cont = 0;
-	private String[] cliente;
+	private Cliente cliente;
 	public String domicilio;
 	private String inicio;
 	private String finEstimado;
@@ -19,7 +19,7 @@ public class Proyecto {
 	public Proyecto(String[] cliente, String domicilio, String inicio, String finEstimado) {
 		cont++;
 		this.codigoProyecto = cont;
-		this.cliente = cliente;
+		this.cliente = new Cliente(cliente[0], cliente[1], cliente[2]);
 		this.domicilio = domicilio;
 		this.inicio = inicio;
 		this.finEstimado = finEstimado;
@@ -32,7 +32,7 @@ public class Proyecto {
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("Proyecto [codigoProyecto=").append(codigoProyecto)
-	      .append(", cliente=").append(Arrays.toString(cliente))
+	      .append(", cliente=").append(cliente)
 	      .append(", domicilio=").append(domicilio)
 	      .append(", inicio=").append(inicio)
 	      .append(", finEstimado=").append(finEstimado)
