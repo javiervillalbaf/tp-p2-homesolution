@@ -26,13 +26,6 @@ public class HomeSolution implements IHomeSolution {
 		return empleados.get(numero);
 	}
 	
-	public void validadorProyectos() {
-		if (proyectos == null) {
-			throw new IllegalArgumentException("No se encuentran proyectos");
-		}
-	}
-	
-	
 	@Override
     public void registrarEmpleado(String nombre, double valor) {
     	if(nombre == null || valor <= 0) {
@@ -189,7 +182,9 @@ public class HomeSolution implements IHomeSolution {
 		if(numero <= 0 || titulo == null || descripcion == null || dias <= 0) {
 			throw new IllegalArgumentException("Ingrese valores validos");
 		}
-		validadorProyectos();
+		if (proyectos == null) {
+			throw new IllegalArgumentException("No se encuentran proyectos");
+		}
 		
 		Tarea tarea = new Tarea(numero, titulo, descripcion, dias);
 		getProyecto(numero).tareas.put(titulo, tarea);
@@ -294,39 +289,27 @@ public class HomeSolution implements IHomeSolution {
 						if(tarea.getDias() % 1 != 0) {
 							if(empPlanta.getRetraso() > 0) {
 								costoProyecto += (tarea.getDias() + (1 - (tarea.getDias() % 1))) * empPlanta.getValor();
-//								System.out.println("\nEmpleado Planta CON Retraso y dias IMPARES:");
-//								System.out.println((tarea.getDias() + (1 - (tarea.getDias() % 1))) * empPlanta.valor);
 							} else {
 								costoProyecto += ((tarea.getDias() + (1 - (tarea.getDias() % 1))) * empPlanta.getValor()) * 1.02;
-//								System.out.println("\nEmpleado Planta SIN Retraso y dias IMPARES:");
-//								System.out.println(((tarea.getDias() + (1 - (tarea.getDias() % 1))) * empPlanta.valor) * 1.02);
 							}
 						} if(tarea.getDias() % 1 == 0) {
 							if(empPlanta.getRetraso() > 0) {
 								costoProyecto += tarea.getDias() * empPlanta.getValor();
-//								System.out.println("\nEmpleado Planta CON Retraso y dias PARES");
-//								System.out.println(tarea.getDias() * empPlanta.valor);
 							} else {
 								costoProyecto += (tarea.getDias() * empPlanta.getValor()) * 1.02;
-//								System.out.println("\nEmpleado Planta SIN Retraso y dias PARES:");
-//								System.out.println((tarea.getDias() * empPlanta.valor) * 1.02);
 							}
 						}
 					} 
 				} else if (getEmpleado(tarea.getEmpleadoAsignado()) instanceof EmpleadoComun) {
 					costoProyecto += tarea.getDias() * 8 * getEmpleado(tarea.getEmpleadoAsignado()).getValor();
-//					System.out.println("\nEmpleado Normal:");
-//					System.out.println(tarea.getDias() * 8 * getEmpleado(tarea.getEmpleadoAsignado()).valor);
 				}
 			}
 		}
-		if (proyecto.estaFinalizado()) {
-			if(proyecto.getFechaFinReal() != proyecto.getFechaFinEstimado()) {
-				costoProyecto *= 1.25;
-			} else {
-				costoProyecto *= 1.35;
-			}
-		}	
+		if(proyecto.getFechaFinReal() != proyecto.getFechaFinEstimado() && proyecto.getFechaFinReal() != null) {
+			costoProyecto *= 1.25;
+		} else {
+			costoProyecto *= 1.35;
+		}
 		return costoProyecto;
     }
 	
