@@ -42,7 +42,11 @@ public abstract class Empleado {
 		return tituloTarea;
 	}
 
-	public abstract String toString();
+	@Override
+	public String toString() {
+		return "" + getLegajo();
+	}
+	
 	protected abstract double getValor();
 	
 	public boolean equals(Object obj) {

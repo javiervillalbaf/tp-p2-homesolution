@@ -11,10 +11,6 @@ public class EmpleadoComun extends Empleado {
 		public double getValor() {
 	        return valorXHora;
 	    }
-		@Override
-		public String toString() {
-			return "" + getLegajo();
-		}
 		
 		@Override
 	    public boolean equals(Object obj) {

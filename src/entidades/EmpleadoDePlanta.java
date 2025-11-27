@@ -9,11 +9,6 @@ public class EmpleadoDePlanta extends Empleado {
 		this.valorXDia = valor;
 		this.categoria = categoria;
 	}
-
-	@Override
-	public String toString() {
-		return "EmpleadoDePlanta [categoria=" + categoria + "]";
-	}
 	
     public String getCategoria() {
         return categoria;

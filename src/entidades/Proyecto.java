@@ -23,7 +23,7 @@ public class Proyecto {
 		this.domicilio = domicilio;
 		this.inicio = inicio;
 		this.finEstimado = finEstimado;
-		this.estado = "PENDIENTE";
+		this.estado = Estado.pendiente;
 		this.costo = 0;
 		this.tareas = new HashMap<>();
 	}
@@ -45,7 +45,7 @@ public class Proyecto {
 	}	
 	
 	public boolean estaFinalizado() {
-		if (estado == "FINALIZADO") {
+		if (estado == Estado.finalizado) {
 			return true;
 		}
 		return false;
@@ -56,16 +56,13 @@ public class Proyecto {
 	}
 	
 	public void finalizarProyecto(String fechaFin) {
-		estado = "FINALIZADO";
+		estado = Estado.finalizado;
 		finReal = fechaFin;
 	}
 	public void activarProyecto() {
-		estado = "ACTIVO";
+		estado = Estado.activo;
 	}
-	public void proyectoPendiente() {
-		estado = "PENDIENTE";
-	}
-	
+		
 	public String getFechaInicio() {
 		return inicio;
 	}
@@ -91,10 +88,6 @@ public class Proyecto {
 	
 	public void  actualizarCosto(double cost) {
 		costo = cost;
-	}
-	
-	public void  agregarCosto(double cost) {
-		costo += cost;
 	}
 	
 	public ArrayList<Tarea> getTareasProyecto() {

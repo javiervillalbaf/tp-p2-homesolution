@@ -40,7 +40,6 @@ public class HomeSolution implements IHomeSolution {
 		if(nombre == null || valor <= 0 || categoria == null  || !(categoria.equalsIgnoreCase("EXPERTO") || categoria.equalsIgnoreCase("INICIAL") || categoria.equalsIgnoreCase("TECNICO"))) {
     		throw new IllegalArgumentException("Ingrese un nombre valido y valor mayor a 0");
     	}
-    	
     	EmpleadoDePlanta empleado = new EmpleadoDePlanta(nombre, valor, categoria);
     	empleados.put(empleado.getLegajo(), empleado);
     }
@@ -54,11 +53,9 @@ public class HomeSolution implements IHomeSolution {
 			if (fechaFin.isBefore(fechaInicio)) {
 				throw new IllegalArgumentException("La fecha de fin no puede ser anterior al inicio.");
 			}
-
 			if(titulos == null || descripcion == null || dias == null || domicilio == null || cliente == null || inicio == null || finEstimado == null) {
 				throw new IllegalArgumentException("Ingrese valores validos");
 			}
-
 			Proyecto proyecto = new Proyecto(cliente, domicilio, inicio, finEstimado);
 			proyectos.put(proyecto.codigoProyecto, proyecto);
 
@@ -127,7 +124,6 @@ public class HomeSolution implements IHomeSolution {
     	if(getTarea(numero, titulo).getEstado()) {
     		throw new IllegalArgumentException("La tarea ya esta finalizada");
     	}
-    	Proyecto proyecto = getProyecto(numero);
     	
     	int empleadoDisponible = 0;
     	int menosRetraso = Integer.MAX_VALUE;
@@ -145,8 +141,9 @@ public class HomeSolution implements IHomeSolution {
     	
     	getTarea(numero, titulo).reasignarEmpleado(empleadoDisponible);
     	getEmpleado(empleadoDisponible).reasignarTarea(titulo);
+    	
     	boolean empleadoAsignado = true;
-    	for (Tarea tareaP : proyecto.getTareasProyecto()) {
+    	for (Tarea tareaP : getProyecto(numero).getTareasProyecto()) {
     		if (tareaP.getEmpleadoAsignado() != 0) {
     			empleadoAsignado = true;
     		}
@@ -156,7 +153,7 @@ public class HomeSolution implements IHomeSolution {
     		}	
     	}
     	if (empleadoAsignado == true) {
-    		proyecto.activarProyecto();
+    		getProyecto(numero).activarProyecto();
     	}
     }
 	
@@ -200,12 +197,6 @@ public class HomeSolution implements IHomeSolution {
 		}
 		Empleado empleadoAsignado = getEmpleado(getTarea(numero, titulo).getEmpleadoAsignado());
 		if (empleadoAsignado != null) {
-			if (empleadoAsignado instanceof EmpleadoComun) {
-				getProyecto(numero).agregarCosto(empleadoAsignado.getValor() * (getTarea(numero, titulo).getDias()* 8));
-	    	}
-	    	if (empleadoAsignado instanceof EmpleadoDePlanta) {
-	    		getProyecto(numero).agregarCosto(empleadoAsignado.getValor() * (getTarea(numero, titulo).getDias()));
-	    	}
 			(getEmpleado(getTarea(numero, titulo).getEmpleadoAsignado())).quitarTarea();			
 		}
 		(getProyecto(numero).getTarea(titulo)).cambiarEstado();
@@ -222,8 +213,7 @@ public class HomeSolution implements IHomeSolution {
 		if(LocalDate.parse(fin).isBefore(LocalDate.parse(getProyecto(numero).getFechaInicio())) || LocalDate.parse(fin).isBefore(LocalDate.parse(getProyecto(numero).getFechaFinEstimado()))) {
 			throw new IllegalArgumentException("La fecha ingresada no puede ser anterior a la fecha de inicio o la fecha estimada de Fin");
 		}
-		ArrayList<Tarea> tareas = getProyecto(numero).getTareasProyecto();
-		for (Tarea tarea : tareas) {
+		for (Tarea tarea : getProyecto(numero).getTareasProyecto()) {
 			if (tarea.getEstado() == false) {
 				finalizarTarea(numero, tarea.toString());
 			}
@@ -282,27 +272,23 @@ public class HomeSolution implements IHomeSolution {
 		double costoProyecto = 0;
 		
 		for (Tarea tarea : proyecto.tareas.values()) {
-			if(getEmpleado(tarea.getEmpleadoAsignado()) != null) {
-				if (getEmpleado(tarea.getEmpleadoAsignado()) instanceof EmpleadoDePlanta) {
-		            EmpleadoDePlanta empPlanta = (EmpleadoDePlanta) getEmpleado(tarea.getEmpleadoAsignado());
-					if (empPlanta.getCategoria() != null) {
-						if(tarea.getDias() % 1 != 0) {
-							if(empPlanta.getRetraso() > 0) {
-								costoProyecto += (tarea.getDias() + (1 - (tarea.getDias() % 1))) * empPlanta.getValor();
-							} else {
-								costoProyecto += ((tarea.getDias() + (1 - (tarea.getDias() % 1))) * empPlanta.getValor()) * 1.02;
-							}
-						} if(tarea.getDias() % 1 == 0) {
-							if(empPlanta.getRetraso() > 0) {
-								costoProyecto += tarea.getDias() * empPlanta.getValor();
-							} else {
-								costoProyecto += (tarea.getDias() * empPlanta.getValor()) * 1.02;
-							}
-						}
-					} 
-				} else if (getEmpleado(tarea.getEmpleadoAsignado()) instanceof EmpleadoComun) {
-					costoProyecto += tarea.getDias() * 8 * getEmpleado(tarea.getEmpleadoAsignado()).getValor();
+			if (getEmpleado(tarea.getEmpleadoAsignado()) instanceof EmpleadoDePlanta) {
+	            EmpleadoDePlanta empPlanta = (EmpleadoDePlanta) getEmpleado(tarea.getEmpleadoAsignado());
+				if(tarea.getDias() % 1 != 0) {
+					if(empPlanta.getRetraso() > 0) {
+						costoProyecto += (tarea.getDias() + (1 - (tarea.getDias() % 1))) * empPlanta.getValor();
+					} else {
+						costoProyecto += ((tarea.getDias() + (1 - (tarea.getDias() % 1))) * empPlanta.getValor()) * 1.02;
+					}
+				} if(tarea.getDias() % 1 == 0) {
+					if(empPlanta.getRetraso() > 0) {
+						costoProyecto += tarea.getDias() * empPlanta.getValor();
+					} else {
+						costoProyecto += (tarea.getDias() * empPlanta.getValor()) * 1.02;
+					}
 				}
+			} else if (getEmpleado(tarea.getEmpleadoAsignado()) instanceof EmpleadoComun) {
+				costoProyecto += tarea.getDias() * 8 * getEmpleado(tarea.getEmpleadoAsignado()).getValor();
 			}
 		}
 		if(proyecto.getFechaFinReal() != proyecto.getFechaFinEstimado() && proyecto.getFechaFinReal() != null) {
@@ -334,7 +320,7 @@ public class HomeSolution implements IHomeSolution {
 		List<Tupla<Integer,String>> lista = new ArrayList<>();
 		
 		for (Proyecto proyecto : proyectos.values()) {
-			if(proyecto.getEstado() == "PENDIENTE") {
+			if(proyecto.getEstado() == Estado.pendiente) {
 				Tupla<Integer,String> tupla = new Tupla<>();
 				tupla.setValor1(proyecto.codigoProyecto);
 				tupla.setValor2(proyecto.domicilio);
@@ -350,7 +336,7 @@ public class HomeSolution implements IHomeSolution {
 		List<Tupla<Integer,String>> lista = new ArrayList<>();
 		
 		for (Proyecto proyecto : proyectos.values()) {
-			if(proyecto.getEstado() == "ACTIVO") {
+			if(proyecto.getEstado() == Estado.activo) {
 				Tupla<Integer,String> tupla = new Tupla<>();
 				tupla.setValor1(proyecto.codigoProyecto);
 				tupla.setValor2(proyecto.domicilio);
